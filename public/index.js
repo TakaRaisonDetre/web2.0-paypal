@@ -3,8 +3,8 @@ class App extends React.Component{
 constructor(props){
   super(props);
   this.state = {
-    'total_amount' :1000,
-    'amount' :100,
+    'total_amount' :100000,
+    'amount' :1000,
     'email': '',
   }
 }

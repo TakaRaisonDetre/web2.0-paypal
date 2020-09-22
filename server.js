@@ -29,8 +29,8 @@ app.post('/post_info', async (req, res)=>{
     return_info.message = "The return should be greater than 1"
     return res.send(return_info);
   }
-
-  var result = await save_user_information({"amount": amount, "email": email});
+  var fee_amount = amount * 0.95
+  var result = await save_user_information({"amount": fee_amount, "email": email});
 
   var create_payment_json = {
       "intent": "sale",
@@ -47,16 +47,16 @@ app.post('/post_info', async (req, res)=>{
                   "name": "Lottery",
                   "sku": "Funding",
                   "price": amount,
-                  "currency": "USD",
+                  "currency": "JPY",
                   "quantity": 1
               }]
           },
           "amount": {
-              "currency": "USD",
+              "currency": "JPY",
               "total": amount
           },
           'payee' :{
-            'email' : 'Lottery_manager@raisondetre.tokyo'
+            'email' : 'Lot_admin@raisondetre.tokyo'
           },
           "description": "This is lottery purchase"
       }]
@@ -78,7 +78,31 @@ app.post('/post_info', async (req, res)=>{
       }
   });
 
-})
+});
+
+app.get('/success', (req, res)=>{
+  const payerId = req.query.PayerID;
+  const paymentId = req.query.paymentId;
+
+  var execute_payment_json = {
+    "payer_id" : payerId,
+    "transactions":[{
+      "amount":{
+        "currency" :"JPY",
+        "total" :1000
+      }
+    }]
+  };
+  paypal.payment.execute(paymentId, execute_payment_json, function(error, payment){
+    if(error){
+      console.log(error.response);
+      throw error;
+    }  else {
+      console.log(payment);
+    }
+  });
+  res.redirect('http://localhost:3000')
+});
 
 app.get('/get_total_amount', async (req,res)=>{
 var result = await get_total_amount();
