@@ -31,7 +31,53 @@ app.post('/post_info', async (req, res)=>{
   }
 
   var result = await save_user_information({"amount": amount, "email": email});
-  res.send(result);
+
+  var create_payment_json = {
+      "intent": "sale",
+      "payer": {
+          "payment_method": "paypal"
+      },
+      "redirect_urls": {
+          "return_url": "http://localhost:3000/success",
+          "cancel_url": "http://localhost:3000/cancel"
+      },
+      "transactions": [{
+          "item_list": {
+              "items": [{
+                  "name": "Lottery",
+                  "sku": "Funding",
+                  "price": amount,
+                  "currency": "USD",
+                  "quantity": 1
+              }]
+          },
+          "amount": {
+              "currency": "USD",
+              "total": amount
+          },
+          'payee' :{
+            'email' : 'Lottery_manager@raisondetre.tokyo'
+          },
+          "description": "This is lottery purchase"
+      }]
+  };
+
+
+  paypal.payment.create(create_payment_json, function (error, payment) {
+      if (error) {
+          throw error;
+      } else {
+          console.log("Create Payment Response");
+          console.log(payment);
+
+          for (var i=0 ; i < payment.links.length; i++){
+            if(payment.links[i].rel =='approval_url'){
+              return res.send(payment.links[i].href);
+            }
+          }
+      }
+  });
+
 })
 
 app.get('/get_total_amount', async (req,res)=>{
