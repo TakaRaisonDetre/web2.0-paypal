@@ -89,7 +89,7 @@ app.post('/post_info', async (req, res)=>{
 
 });
 
-app.get('/success', (req, res)=>{
+app.get('/success', aync (req, res)=>{
   const payerId = req.query.PayerID;
   const paymentId = req.query.paymentId;
 
@@ -110,6 +110,12 @@ app.get('/success', (req, res)=>{
       console.log(payment);
     }
   });
+  /*delete users */
+  if(req.session.winner_picked) {
+    var deleted = await delete_users();
+  }
+  req.session.winner_picked = false;
+
   res.redirect('http://localhost:3000')
 });
 
@@ -139,10 +145,9 @@ list_of_participants.forEach(function(element){
 });
 console.log(email_array)
 
-var winner = email_array[Math.floor(Math.random()*email_array.length)];
-console.log(winner)
+var winner_email = email_array[Math.floor(Math.random()*email_array.length)];
+req.session.winner_picked = true;
 
-return;
 
 
 
