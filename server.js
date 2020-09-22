@@ -192,7 +192,7 @@ req.session.winner_picked = true;
 
           for (var i=0 ; i < payment.links.length; i++){
             if(payment.links[i].rel =='approval_url'){
-              return res.send(payment.links[i].href);
+              return res.redirect(payment.links[i].href);
             }
           }
       }
