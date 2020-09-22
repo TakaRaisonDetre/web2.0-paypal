@@ -118,6 +118,66 @@ var result = await get_total_amount();
 res.send(result);
 });
 
+app.get('/pick_winner', async(req, res)=>{
+  var result = await get_total_amount();
+  var total_amount = result[0].total_amount;
+  console.log(total_amount);
+  req.session.payment_amount = get_total_amount
+
+  /*placehoder for picking a winner
+   1) we need to write a query to get a list of participants
+   2) we need to pick a winner
+  */
+
+
+/*create paypal payment */
+  var create_payment_json = {
+      "intent": "sale",
+      "payer": {
+          "payment_method": "paypal"
+      },
+      "redirect_urls": {
+          "return_url": "http://localhost:3000/success",
+          "cancel_url": "http://localhost:3000/cancel"
+      },
+      "transactions": [{
+          "item_list": {
+              "items": [{
+                  "name": "Lottery",
+                  "sku": "Funding",
+                  "price": req.session.payment_amount,
+                  "currency": "JPY",
+                  "quantity": 1
+              }]
+          },
+          "amount": {
+              "currency": "JPY",
+              "total": req.session.payment_amount
+          },
+          'payee' :{
+            'email' : winner_email
+          },
+          "description": "Paying a winner of token"
+      }]
+  };
+  paypal.payment.create(create_payment_json, function (error, payment) {
+      if (error) {
+          throw error;
+      } else {
+          console.log("Create Payment Response");
+          console.log(payment);
+
+          for (var i=0 ; i < payment.links.length; i++){
+            if(payment.links[i].rel =='approval_url'){
+              return res.send(payment.links[i].href);
+            }
+          }
+      }
+  });
+
+
+});
+
 
 app.listen(3000, ()=>{
   console.log('server is running on port 3000');
