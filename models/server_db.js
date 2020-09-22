@@ -18,7 +18,17 @@ get_total_amount = (data) => new Promise((resolve, reject)=>{
   });
 });
 
+get_list_of_participants = (data)=> new Promise((resolve, reject)=>{
+  db.query('select email from lottery_information', null, function(err,results,fields){
+    if(err){
+      reject('Could not fetch lst of participants');
+    }
+    resolve(results);
+  });
+});
+
 
 module.exports = {
-  save_user_information
+  save_user_information,
+  get_list_of_participants
 }
